@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load training data --------------------------------
-with open('DBLPTrainset.txt') as f:
+with open('Data\DBLPTrainset.txt') as f:
     lines = f.readlines()
 
 for i in range(len(lines)):
@@ -12,7 +12,7 @@ for i in range(len(lines)):
 train = pd.DataFrame(lines, columns=['Label', 'Title'])
 
 # Load test data------------------------------------------------
-with open('DBLPTestset.txt') as f:
+with open('Data\DBLPTestset.txt') as f:
     lines = f.readlines()
 for i in range(len(lines)):
     pre = lines[i].split()[1:]
@@ -20,7 +20,7 @@ for i in range(len(lines)):
 
 test = pd.DataFrame(lines, columns=['Title'])
 
-with open('DBLPTestGroundTruth.txt') as f:
+with open('Data\DBLPTestGroundTruth.txt') as f:
     lines = f.readlines()
 for i in range(len(lines)):
     lines[i] = lines[i].split()[1:][0]

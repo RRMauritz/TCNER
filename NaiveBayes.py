@@ -6,6 +6,8 @@ from Dataload import train, test
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 
+
+# Compound classifier: vectorizer -> transformer -> classifier
 nb = Pipeline([('vect', CountVectorizer()),
                ('tfidf', TfidfTransformer()),
                ('clf', MultinomialNB()),
