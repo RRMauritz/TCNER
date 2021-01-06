@@ -52,7 +52,6 @@ for i in range(len(lines)):
 # Store in pandas data frame
 train = pd.DataFrame(lines, columns=['Label', 'Title'])
 
-
 # Load test data------------------------------------------------
 with open('Data\DBLPTestset.txt') as f:
     lines = f.readlines()
@@ -75,10 +74,9 @@ train["Title_clean"] = train["Title"].apply(
 test["Title_clean"] = test["Title"].apply(
     lambda x: utils_preprocess_text(x, flg_stemm=True, flg_lemm=False, lst_stopwords=lst_stopwords))
 
-print(train.iloc[2])
-
 X_train = train.Title_clean
 X_test = test.Title_clean
 y_train = train.Label
 y_test = test.Label
 
+lst_words = X_train[0].split()
