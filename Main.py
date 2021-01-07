@@ -12,7 +12,6 @@ from sklearn.metrics import confusion_matrix
 from DataPrep import X_train, X_test, y_train, y_test
 
 # Performance------------------------------------------------------------:
-
 print('accuracy NB =  %s' % accuracy_CV(X_train, y_train, 10, bow_nb))
 print('accuracy LR =  %s' % accuracy_CV(X_train, y_train, 10, logrec))
 print('accuracy SVM =  %s' % accuracy_CV(X_train, y_train, 10, svm))

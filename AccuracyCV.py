@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
-from NaiveBayes import bow_nb
 
 
 def accuracy_CV(X, y, k, classifier):
