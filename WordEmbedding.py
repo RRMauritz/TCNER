@@ -28,7 +28,7 @@ def lstm(X_train, X_test, y_train):
     X_train = kprocessing.sequence.pad_sequences(lst_text2seq_train, maxlen=seq_len, padding="post", truncating="post")
     X_test = kprocessing.sequence.pad_sequences(lst_text2seq_test, maxlen=seq_len, padding="post", truncating="post")
 
-    emb_size = 100
+    emb_size = 300
     emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=emb_size, window=8, min_count=1, sg=1, iter=30)
     embeddings = np.zeros((len(dic_vocabulary) + 1, emb_size))
     # Every word in the learned dictionary gets one row where its embedding gets

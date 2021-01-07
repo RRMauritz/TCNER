@@ -5,23 +5,18 @@ from NaiveBayes import bow_nb
 from LR import logrec
 from SVM import svm
 from WordEmbedding import lstm
+from AccuracyCV import accuracy_CV
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from DataPrep import X_train, X_test, y_train, y_test
 
-y_pred_nb = bow_nb(X_train, X_test, y_train)
-y_pred_lr = logrec(X_train, X_test, y_train)
-y_pred_svm = svm(X_train, X_test, y_train)
-y_pred_nn = lstm(X_train, X_test, y_train)
-
 # Performance------------------------------------------------------------:
 
-
-print('accuracy NB =  %s' % accuracy_score(y_pred_nb, y_test))
-print('accuracy LR =  %s' % accuracy_score(y_pred_lr, y_test))
-print('accuracy SVM =  %s' % accuracy_score(y_pred_svm, y_test))
-print('accuracy lstm = %s' % accuracy_score(y_pred_nn, y_test))
+print('accuracy NB =  %s' % accuracy_CV(X_train, y_train, 10, bow_nb))
+print('accuracy LR =  %s' % accuracy_CV(X_train, y_train, 10, logrec))
+print('accuracy SVM =  %s' % accuracy_CV(X_train, y_train, 10, svm))
+print('accuracy lstm = %s' % accuracy_CV(X_train, y_train, 10, lstm))
 
 # categories = ['INFOCOM', 'ISCAS', 'SIGGRAPH', 'VLDB', 'WWW']
 # y_pred = y_pred_nn
