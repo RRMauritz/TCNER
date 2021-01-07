@@ -1,103 +1,72 @@
 import gensim
-import seaborn as sns
 import numpy as np
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
 from keras import models, layers, preprocessing as kprocessing
 
 
-def embedding(X_train, X_test, y_train, y_test):
+def lstm(X_train, X_test, y_train):
     X_train_lst = [string.split() for string in X_train]
+    X_test_lst = [string.split() for string in X_test]
 
-    # TODO: uitzoeken wat dit hieronder allemaal betekent
-    emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=300, window=8, min_count=1, sg=1, iter=30)
     # tokenize text
-    tokenizer = kprocessing.text.Tokenizer(lower=True, split=' ',
-                                           oov_token="NaN",
-                                           filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n')
+    tokenizer = kprocessing.text.Tokenizer(split=' ', oov_token="NaN")
     tokenizer.fit_on_texts(X_train_lst)  # apply the tokenizer and store the dictionary
     dic_vocabulary = tokenizer.word_index
-    # create sequence
-    lst_text2seq = tokenizer.texts_to_sequences(X_train_lst)
-    # padding sequence
-    seq_len = 15
-    X_train = kprocessing.sequence.pad_sequences(lst_text2seq, maxlen=seq_len, padding="post", truncating="post")
 
-    X_test_lst = [string.split() for string in X_test]
-    # text to sequence with the fitted tokenizer
-    lst_text2seq = tokenizer.texts_to_sequences(X_test_lst)
-
+    # create sequence of integers for each text
+    lst_text2seq_train = tokenizer.texts_to_sequences(X_train_lst)
+    lst_text2seq_test = tokenizer.texts_to_sequences(X_test_lst)
     # padding sequence
-    X_test = kprocessing.sequence.pad_sequences(lst_text2seq, maxlen=seq_len,
+    seq_len = max([len(seq) for seq in lst_text2seq_train])
+
+    X_train = kprocessing.sequence.pad_sequences(lst_text2seq_train, maxlen=seq_len,
+                                                 padding="post", truncating="post")
+    X_test = kprocessing.sequence.pad_sequences(lst_text2seq_test, maxlen=seq_len,
                                                 padding="post", truncating="post")
 
-    # Embedding matrix with number of rows = length of vocabulary, number of columns = length of embedding sequence
-    embeddings = np.zeros((len(dic_vocabulary) + 1, 300))
+    emb_size = 100
+    emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=emb_size, window=8, min_count=1, sg=1, iter=30)
+    embeddings = np.zeros((len(dic_vocabulary) + 1, emb_size))
     # Every word in the learned dictionary gets one row where its embedding gets
     for word, idx in dic_vocabulary.items():
-        ## update the row with vector
+        # update the row with vector
         try:
             embeddings[idx] = emb[word]
-        ## if word not in the embedding model then skip and the row stays all 0s
+        # if word not in the embedding model then skip and the row stays all 0s
         except:
             pass
 
-    ## code attention layer
-    def attention_layer(inputs, neurons):
-        x = layers.Permute((2, 1))(inputs)
-        x = layers.Dense(neurons, activation="softmax")(x)
-        x = layers.Permute((2, 1), name="attention")(x)
-        x = layers.multiply([inputs, x])
-        return x
-
-    ## input
-    x_in = layers.Input(shape=(seq_len,))
-    ## embedding
-    x = layers.Embedding(input_dim=embeddings.shape[0],
-                         output_dim=embeddings.shape[1],
-                         weights=[embeddings],
-                         input_length=seq_len, trainable=False)(x_in)
-    ## apply attention
-    x = attention_layer(x, neurons=seq_len)
-    ## 2 layers of bidirectional lstm
-    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.2,
-                                         return_sequences=True))(x)
-    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.2))(x)
-    ## final dense layers
-    x = layers.Dense(64, activation='relu')(x)
-    y_out = layers.Dense(5, activation='softmax')(x)
-    ## compile
-    model = models.Model(x_in, y_out)
-    model.compile(loss='sparse_categorical_crossentropy',
-                  optimizer='adam', metrics=['accuracy'])
-
-    ## encode y
-    dic_y_mapping = {n: label for n, label in
-                     enumerate(np.unique(y_train))}
+    # encode y
+    dic_y_mapping = {n: label for n, label in enumerate(np.unique(y_train))}
     inverse_dic = {v: k for k, v in dic_y_mapping.items()}
     y_train = np.array([inverse_dic[y] for y in y_train])
 
-    ## train
-    training = model.fit(x=X_train, y=y_train, batch_size=256,
-                         epochs=20, shuffle=True, verbose=1,
-                         validation_split=0.3)
+    # train
+    model = NeuralNet(seq_len, embeddings)
+    model.fit(x=X_train, y=y_train, batch_size=64, epochs=5, shuffle=True, verbose=1, validation_split=0.3)
 
     predicted_prob = model.predict(X_test)
-    predicted = [dic_y_mapping[np.argmax(pred)] for pred in
-                 predicted_prob]
+    predicted = [dic_y_mapping[np.argmax(pred)] for pred in predicted_prob]
+    return predicted
 
-    # Test results ---------------------------------------
-    # TODO: labels staan niet op goede volgorde!
-    # Probleem: we gebruiken xticklabels = categories wat de unieke categories uit y_test zijn
-    # Blijkbaar gebruik de cm een andere volgorde
-    categories = y_test.unique()
-    print("y_test:", y_test)
-    print("predicted:", predicted)
-    cm = confusion_matrix(y_test, predicted)
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', ax=ax, cmap=plt.cm.Blues,
-                cbar=False)
-    ax.set(xlabel="Pred", ylabel="True", xticklabels=categories,
-           yticklabels=categories, title="Confusion matrix")
-    plt.yticks(rotation=0)
-    plt.show()
+
+def NeuralNet(seq_len, embeddings):
+    # input
+    x_in = layers.Input(shape=(seq_len,))
+    # embedding
+    x = layers.Embedding(input_dim=embeddings.shape[0],  # number of embeddings
+                         output_dim=embeddings.shape[1],  # size of embedding vector
+                         weights=[embeddings],
+                         input_length=seq_len, trainable=False)(x_in)
+
+    # 2 layers of bidirectional lstm
+    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.5,
+                                         return_sequences=True))(x)
+    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.5))(x)
+    # final dense layers
+    x = layers.Dense(64, activation='relu')(x)
+    y_out = layers.Dense(5, activation='softmax')(x)  # 5 is number of classes (conferences)
+    # compile
+    model = models.Model(x_in, y_out)
+    model.compile(loss='sparse_categorical_crossentropy',
+                  optimizer='adam', metrics=['accuracy'])
+    return model
