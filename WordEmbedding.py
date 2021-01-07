@@ -15,7 +15,7 @@ def embedding(X_train, X_test, y_train, y_test):
     tokenizer = kprocessing.text.Tokenizer(lower=True, split=' ',
                                            oov_token="NaN",
                                            filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n')
-    tokenizer.fit_on_texts(X_train_lst) # apply the tokenizer and store the dictionary
+    tokenizer.fit_on_texts(X_train_lst)  # apply the tokenizer and store the dictionary
     dic_vocabulary = tokenizer.word_index
     # create sequence
     lst_text2seq = tokenizer.texts_to_sequences(X_train_lst)
@@ -27,10 +27,11 @@ def embedding(X_train, X_test, y_train, y_test):
     # text to sequence with the fitted tokenizer
     lst_text2seq = tokenizer.texts_to_sequences(X_test_lst)
 
-    ## padding sequence
+    # padding sequence
     X_test = kprocessing.sequence.pad_sequences(lst_text2seq, maxlen=seq_len,
                                                 padding="post", truncating="post")
 
+    # Embedding matrix with number of rows = length of vocabulary, number of columns = length of embedding sequence
     embeddings = np.zeros((len(dic_vocabulary) + 1, 300))
     # Every word in the learned dictionary gets one row where its embedding gets
     for word, idx in dic_vocabulary.items():
