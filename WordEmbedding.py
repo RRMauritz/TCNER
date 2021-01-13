@@ -1,6 +1,8 @@
 import gensim
 import numpy as np
 from keras import models, layers, preprocessing as kprocessing
+from keras import regularizers
+
 
 
 def lstm(X_train, X_test, y_train):
@@ -47,7 +49,7 @@ def lstm(X_train, X_test, y_train):
 
     # train
     model = NeuralNet(seq_len, embeddings)
-    model.fit(x=X_train, y=y_train, batch_size=64, epochs=20, shuffle=True, verbose=1, validation_split=0.3)
+    model.fit(x=X_train, y=y_train, batch_size=64, epochs=30, shuffle=True, verbose=1)
 
     predicted_prob = model.predict(X_test)
     predicted = [dic_y_mapping[np.argmax(pred)] for pred in predicted_prob]
@@ -64,9 +66,9 @@ def NeuralNet(seq_len, embeddings):
                          input_length=seq_len, trainable=False)(x_in)
 
     # 2 layers of bidirectional lstm + one dense layer with ReLU activ. and softmax output
-    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.3, return_sequences=True))(x)
-    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.3))(x)
-    x = layers.Dense(64, activation='relu')(x)
+    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.4, return_sequences=True))(x)
+    x = layers.Bidirectional(layers.LSTM(units=seq_len, dropout=0.4))(x)
+    x = layers.Dense(64, activation='relu', kernel_regularizer='l2')(x)
     y_out = layers.Dense(5, activation='softmax')(x)  # 5 is number of classes (conferences)
 
     # compile

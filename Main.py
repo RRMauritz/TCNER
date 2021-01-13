@@ -12,10 +12,12 @@ from sklearn.metrics import confusion_matrix
 from DataPrep import X_train, X_test, y_train, y_test
 
 # Performance------------------------------------------------------------:
-print('accuracy NB =  %s' % accuracy_CV(X_train, y_train, 10, bow_nb))
-print('accuracy LR =  %s' % accuracy_CV(X_train, y_train, 10, logrec))
-print('accuracy SVM =  %s' % accuracy_CV(X_train, y_train, 10, svm))
-print('accuracy lstm = %s' % accuracy_CV(X_train, y_train, 10, lstm))
+k = 10
+
+print('accuracy NB =  %s' % accuracy_CV(X_train, y_train, k, bow_nb))
+print('accuracy LR =  %s' % accuracy_CV(X_train, y_train, k, logrec))
+print('accuracy SVM =  %s' % accuracy_CV(X_train, y_train, k, svm))
+print('accuracy lstm = %s' % accuracy_CV(X_train, y_train, k, lstm))
 
 # categories = ['INFOCOM', 'ISCAS', 'SIGGRAPH', 'VLDB', 'WWW']
 # y_pred = y_pred_nn
