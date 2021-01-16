@@ -1,8 +1,6 @@
 import gensim
 import numpy as np
 from keras import models, layers, preprocessing as kprocessing
-from keras import regularizers
-
 
 
 def lstm(X_train, X_test, y_train):
@@ -31,7 +29,8 @@ def lstm(X_train, X_test, y_train):
     X_test = kprocessing.sequence.pad_sequences(lst_text2seq_test, maxlen=seq_len, padding="post", truncating="post")
 
     emb_size = 300
-    emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=emb_size, window=8, min_count=1, sg=1, iter=30)
+    # Sg = 1: use skipgram approach, window = 7: mean length of sentence (after pre-processing)
+    emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=emb_size, window=7, min_count=1, sg=1, iter=30)
     embeddings = np.zeros((len(dic_vocabulary) + 1, emb_size))
     # Every word in the learned dictionary gets one row where its embedding gets
     for word, idx in dic_vocabulary.items():
@@ -49,7 +48,7 @@ def lstm(X_train, X_test, y_train):
 
     # train
     model = NeuralNet(seq_len, embeddings)
-    model.fit(x=X_train, y=y_train, batch_size=64, epochs=30, shuffle=True, verbose=1)
+    model.fit(x=X_train, y=y_train, batch_size=64, epochs=30, shuffle=True, verbose=0)
 
     predicted_prob = model.predict(X_test)
     predicted = [dic_y_mapping[np.argmax(pred)] for pred in predicted_prob]

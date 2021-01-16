@@ -70,9 +70,9 @@ test['Label'] = lines
 # Pre-processing ----------------------------------------------------
 lst_stopwords = nltk.corpus.stopwords.words("english")
 train["Title_clean"] = train["Title"].apply(
-    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True, lst_stopwords=lst_stopwords))
+    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True))
 test["Title_clean"] = test["Title"].apply(
-    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True, lst_stopwords=lst_stopwords))
+    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True))
 
 X_train = train.Title_clean
 X_test = test.Title_clean
