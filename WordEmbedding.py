@@ -11,25 +11,28 @@ def lstm(X_train, X_test, y_train):
     2) Using this embedding as embedding layer in a deep NN containing an LSTM and softmax output
     """
 
+    # LEARN VOCABULARY -----------------------------
     X_train_lst = [string.split() for string in X_train]
     X_test_lst = [string.split() for string in X_test]
 
-    # tokenize text
+    # tokenize text and learns vocabulary on the training data
     tokenizer = kprocessing.text.Tokenizer(split=' ', oov_token="NaN")
     tokenizer.fit_on_texts(X_train_lst)  # apply the tokenizer and store the dictionary
     dic_vocabulary = tokenizer.word_index
 
-    # create sequence of integers for each text
+    # TEXT TO SEQUENCES ----------------------------
+    # create sequence of integers for each text: based on vocabulary map each word to an integer
     lst_text2seq_train = tokenizer.texts_to_sequences(X_train_lst)
     lst_text2seq_test = tokenizer.texts_to_sequences(X_test_lst)
-    # padding sequence so that all sequences have equal length
+    # padding sequence so that all sequences have equal length: based on largest sentence in the corpus
     seq_len = max([len(seq) for seq in lst_text2seq_train])
-
     X_train = kprocessing.sequence.pad_sequences(lst_text2seq_train, maxlen=seq_len, padding="post", truncating="post")
     X_test = kprocessing.sequence.pad_sequences(lst_text2seq_test, maxlen=seq_len, padding="post", truncating="post")
 
+    # EMBEDDING ------------------------------------
     emb_size = 300
     # Sg = 1: use skipgram approach, window = 7: mean length of sentence (after pre-processing)
+    # Skipgram: predict context given the word
     emb = gensim.models.word2vec.Word2Vec(X_train_lst, size=emb_size, window=7, min_count=1, sg=1, iter=30)
     embeddings = np.zeros((len(dic_vocabulary) + 1, emb_size))
     # Every word in the learned dictionary gets one row where its embedding gets

@@ -21,3 +21,10 @@ def accuracy_CV(X, y, k, classifier):
         metrics[i] = precision_recall_fscore_support(y_val.to_numpy(), y_pred, average='micro')[0]
         i = i + 1
     return np.mean(metrics)
+
+
+def acc_test(X_train, X_test, y_train, y_test, classifier):
+    # Train the classifier on (X_train,y_train) and then feed X_test to predict
+    y_pred = classifier(X_train, X_test, y_train)
+    # Evaluate on X_pred
+    return precision_recall_fscore_support(y_test.to_numpy(), y_pred, average='micro')[0]

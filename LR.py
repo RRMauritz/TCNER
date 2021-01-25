@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 def logrec(X_train, X_test, y_train):
     """"
-    Logistic Regression model
+    Logistic Regression m
     """
 
     logreg = Pipeline([('vect', TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
