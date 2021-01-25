@@ -4,7 +4,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
 
-def bow_nb(X_train, X_test, y_train):
+def nb(X_train, X_test, y_train):
     """"
     Multi-class Naive Bayes classifier that works with the bag of words (BOW) model and TFIDF-ing
     :returns predicted labels for the test data X_test
