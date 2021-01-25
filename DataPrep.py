@@ -40,7 +40,7 @@ def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, lst_stopwords=No
     return text
 
 
-# Load training data ------------------------------------------
+# Load training data --------------------------------------------------
 with open('Data\DBLPTrainset.txt') as f:
     lines = f.readlines()
 
@@ -52,7 +52,7 @@ for i in range(len(lines)):
 # Store in pandas data frame
 train = pd.DataFrame(lines, columns=['Label', 'Title'])
 
-# Load test data------------------------------------------------
+# Load test data------------------------------------------------------
 with open('Data\DBLPTestset.txt') as f:
     lines = f.readlines()
 for i in range(len(lines)):
@@ -70,10 +70,11 @@ test['Label'] = lines
 # Pre-processing ----------------------------------------------------
 lst_stopwords = nltk.corpus.stopwords.words("english")
 train["Title_clean"] = train["Title"].apply(
-    lambda x: utils_preprocess_text(x, flg_stemm=True, flg_lemm=False, lst_stopwords=lst_stopwords))
+    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True))
 test["Title_clean"] = test["Title"].apply(
-    lambda x: utils_preprocess_text(x, flg_stemm=True, flg_lemm=False, lst_stopwords=lst_stopwords))
+    lambda x: utils_preprocess_text(x, flg_stemm=False, flg_lemm=True))
 
+# Store results -----------------------------------------------------
 X_train = train.Title_clean
 X_test = test.Title_clean
 y_train = train.Label

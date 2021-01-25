@@ -5,9 +5,9 @@ from keras import models, layers, preprocessing as kprocessing
 
 def lstm(X_train, X_test, y_train):
     """"
-    Method that performs text classification by using a neural network model containing an LSTM
+    Method that performs text classification by using a neural network model containing an LSTM core
     It does so by the following steps:
-    1) Creating an embedding model based on the Word2Vec framework
+    1) Creating an embedding model based on the Word2Vec framework (skipgram)
     2) Using this embedding as embedding layer in a deep NN containing an LSTM and softmax output
     """
 
@@ -44,12 +44,12 @@ def lstm(X_train, X_test, y_train):
         except:
             pass
 
-    # encode y
+    # ENCODE Y -------------------------------------
     dic_y_mapping = {n: label for n, label in enumerate(np.unique(y_train))}
     inverse_dic = {v: k for k, v in dic_y_mapping.items()}
     y_train = np.array([inverse_dic[y] for y in y_train])
 
-    # train
+    # TRAIN NEURAL NETWORK (LSTM) ------------------
     model = NeuralNet(seq_len, embeddings)
     model.fit(x=X_train, y=y_train, batch_size=64, epochs=30, shuffle=True, verbose=0)
 
@@ -59,9 +59,14 @@ def lstm(X_train, X_test, y_train):
 
 
 def NeuralNet(seq_len, embeddings):
-    # input
+    """
+    :param seq_len: length of the input sequences to the neural network
+    :param embeddings: embedding matrix
+    :return: compiled neural network
+    """
+    # input layer
     x_in = layers.Input(shape=(seq_len,))
-    # embedding
+    # embedding layer
     x = layers.Embedding(input_dim=embeddings.shape[0],  # number of embeddings
                          output_dim=embeddings.shape[1],  # size of embedding vector
                          weights=[embeddings],
